@@ -29,6 +29,7 @@ public class PagingWithNetworkViewModel extends AndroidViewModel {
         GitHubPageDataFactory dataSourceFactory = new GitHubPageDataFactory();
 
         networkState = Transformations.switchMap(dataSourceFactory.getMutableLiveData(), dataSource -> dataSource.getIsLoadingNetwork());
+        //LiveData<NetworkState> ff = Transformations.map(dataSourceFactory.getMutableLiveData(), dataSource -> dataSource.getIsLoadingNetwork());
 
         topicsList = new LivePagedListBuilder<>(dataSourceFactory, new PagedList.Config.Builder()
             .setEnablePlaceholders(true)

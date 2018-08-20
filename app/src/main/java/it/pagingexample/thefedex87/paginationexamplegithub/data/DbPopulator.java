@@ -31,16 +31,13 @@ public final class DbPopulator {
         topicsApiInterface.topics(Constants.SEARCH_ARGUMENT).enqueue(new Callback<RetrofitResponse>() {
             @Override
             public void onResponse(Call<RetrofitResponse> call, final Response<RetrofitResponse> response) {
-                Executors.newSingleThreadExecutor().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        Topic[] topics = new Topic[response.body().getItems().size()];
-                        topics = response.body().getItems().toArray(topics);
-                        for(Topic topic : topics){
-                            topic.setOwnerName(topic.getOwner().getLogin());
-                        }
-                        db.topicDao().insert(topics);
+                Executors.newSingleThreadExecutor().execute(() -> {
+                    Topic[] topics = new Topic[response.body().getItems().size()];
+                    topics = response.body().getItems().toArray(topics);
+                    for(Topic topic : topics){
+                        topic.setOwnerName(topic.getOwner().getLogin());
                     }
+                    db.topicDao().insert(topics);
                 });
             }
 

@@ -38,6 +38,6 @@ public class PagingFromNetworkActivity extends AppCompatActivity {
     private void setupViewModel() {
         PagingWithNetworkViewModel viewModel = ViewModelProviders.of(this).get(PagingWithNetworkViewModel.class);
         viewModel.getTopicsList().observe(this, adapter::submitList);
-        viewModel.getIsLoadingNetwork().observe(this, aBoolean -> adapter.setIsLoadingNetwork(aBoolean));
+        viewModel.getIsLoadingNetwork().observe(this, networkState -> adapter.setIsLoadingNetwork(networkState));
     }
 }

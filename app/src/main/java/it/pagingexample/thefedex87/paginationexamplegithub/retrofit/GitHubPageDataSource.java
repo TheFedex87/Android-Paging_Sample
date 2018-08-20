@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import com.google.gson.Gson;
 
 import it.pagingexample.thefedex87.paginationexamplegithub.Constants;
+import it.pagingexample.thefedex87.paginationexamplegithub.NetworkState;
 import it.pagingexample.thefedex87.paginationexamplegithub.data.Topic;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -15,15 +16,15 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class GitHubPageDataSource extends PageKeyedDataSource<Integer, Topic> {
-    private MutableLiveData<Boolean> isLoadingNetwork;
+    private MutableLiveData<NetworkState> isLoadingNetwork;
 
     public GitHubPageDataSource(){
-        isLoadingNetwork = new MutableLiveData<Boolean>();
+        isLoadingNetwork = new MutableLiveData<>();
     }
 
     @Override
     public void loadInitial(@NonNull LoadInitialParams<Integer> params, @NonNull LoadInitialCallback<Integer, Topic> callback) {
-        isLoadingNetwork.postValue(true);
+        isLoadingNetwork.postValue(NetworkState.LOADING);
 
         TopicsApiInterface topicsApiInterface = new Retrofit.Builder()
                 .baseUrl(Constants.BASE_URL)
@@ -35,12 +36,12 @@ public class GitHubPageDataSource extends PageKeyedDataSource<Integer, Topic> {
             @Override
             public void onResponse(Call<RetrofitResponse> call, Response<RetrofitResponse> response) {
                 callback.onResult(response.body().getItems(), null, 2);
-                isLoadingNetwork.postValue(false);
+                isLoadingNetwork.postValue(NetworkState.LOADED);
             }
 
             @Override
             public void onFailure(Call<RetrofitResponse> call, Throwable t) {
-                isLoadingNetwork.postValue(false);
+                isLoadingNetwork.postValue(NetworkState.FAILED);
             }
         });
     }
@@ -52,7 +53,7 @@ public class GitHubPageDataSource extends PageKeyedDataSource<Integer, Topic> {
 
     @Override
     public void loadAfter(@NonNull LoadParams<Integer> params, @NonNull LoadCallback<Integer, Topic> callback) {
-        isLoadingNetwork.postValue(true);
+        isLoadingNetwork.postValue(NetworkState.LOADING);
 
         TopicsApiInterface topicsApiInterface = new Retrofit.Builder()
                 .baseUrl(Constants.BASE_URL)
@@ -66,18 +67,20 @@ public class GitHubPageDataSource extends PageKeyedDataSource<Integer, Topic> {
                 if (response.isSuccessful()) {
                     int nextKey = (params.key == response.body().getTotalCount()) ? null : params.key + 1;
                     callback.onResult(response.body().getItems(), nextKey);
-                    isLoadingNetwork.postValue(false);
+                    isLoadingNetwork.postValue(NetworkState.LOADED);
+                } else {
+                    isLoadingNetwork.postValue(NetworkState.FAILED);
                 }
             }
 
             @Override
             public void onFailure(Call<RetrofitResponse> call, Throwable t) {
-                isLoadingNetwork.postValue(false);
+                isLoadingNetwork.postValue(NetworkState.FAILED);
             }
         });
     }
 
-    public MutableLiveData<Boolean> getIsLoadingNetwork() {
+    public MutableLiveData<NetworkState> getIsLoadingNetwork() {
         return isLoadingNetwork;
     }
 }

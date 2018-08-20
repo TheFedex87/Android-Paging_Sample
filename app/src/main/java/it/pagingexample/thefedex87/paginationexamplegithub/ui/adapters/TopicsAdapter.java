@@ -13,6 +13,8 @@ import it.pagingexample.thefedex87.paginationexamplegithub.data.Topic;
 public class TopicsAdapter extends PagedListAdapter<Topic, TopicsViewHolder> {
     private NetworkState networkState;
 
+    private int prevCheckedElement = -1;
+
     public TopicsAdapter() {
         super(Topic.DIFF_CALLBACK);
     }
@@ -36,9 +38,13 @@ public class TopicsAdapter extends PagedListAdapter<Topic, TopicsViewHolder> {
     }
 
     public void setIsLoadingNetwork(NetworkState isLoadingNetowrk){
-
         this.networkState = isLoadingNetowrk;
-        //notifyItemChanged(getItemCount() - 1);
-        notifyDataSetChanged();
+
+        if (prevCheckedElement > -1)
+            notifyItemChanged(prevCheckedElement);
+
+        prevCheckedElement = getItemCount() - 1;
+
+        //notifyDataSetChanged();
     }
 }
